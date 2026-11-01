@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LinkSense AI &mdash; AI LinkedIn Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06080f;--bg2:#0b0f1c;--bg3:#0f1628;
+  --blue:#0a66c2;--cyan:#00c8ff;--glow:rgba(10,102,194,.5);
+  --white:#f0f4ff;--muted:#7a88a8;
+  --border:rgba(255,255,255,.07);--card:rgba(255,255,255,.04);
+  --radius:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:99px;}
+
+/* ─── NAV ─────────────────────────────────── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:68px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;
+  background:rgba(6,8,15,.4);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);transition:background .3s;
+}
+#nav.scrolled{background:rgba(6,8,15,.95);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:var(--white);}
+.logo-img{width:34px;height:34px;border-radius:8px;overflow:hidden;background:#0d1f3c;box-shadow:0 0 12px var(--glow);flex-shrink:0;}
+.logo-img img{width:100%;height:100%;object-fit:cover;display:block;mix-blend-mode:screen;}
+.logo-ai{color:var(--cyan);}
+.nav-links{display:flex;gap:1.6rem;list-style:none;}
+.nav-links a{font-size:.87rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-right{display:flex;align-items:center;gap:.7rem;}
+.lang-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:.76rem;letter-spacing:.05em;padding:.36rem .82rem;border-radius:100px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .2s;}
+.lang-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+.nav-cta{font-family:'Syne',sans-serif;font-weight:700;font-size:.84rem;padding:.5rem 1.3rem;border-radius:100px;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--blue),var(--cyan));box-shadow:0 0 18px var(--glow);transition:transform .2s,box-shadow .2s;}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 0 28px var(--glow);}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:5px;}
+.burger span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px;transition:all .28s;}
+
+/* ─── MOBILE MENU ─────────────────────────── */
+#mob-menu{
+  display:none;position:fixed;top:68px;left:0;right:0;z-index:99;
+  background:rgba(6,8,15,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:14px 5vw 22px;
+}
+#mob-menu.open{display:block;}
+#mob-menu a{display:block;padding:13px 0;color:var(--muted);text-decoration:none;font-size:1rem;border-bottom:1px solid var(--border);transition:color .2s;}
+#mob-menu a:last-child{border:none;}
+#mob-menu a:hover{color:var(--white);}
+.mob-cta{
+  display:inline-flex!important;margin-top:16px;
+  padding:.7rem 1.8rem;border-radius:100px;text-decoration:none!important;
+  color:#fff!important;font-family:'Syne',sans-serif;font-weight:700;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));border:none!important;
+}
+
+/* ─── HERO ────────────────────────────────── */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:110px 5vw 80px;
+  position:relative;text-align:center;
+}
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(10,102,194,.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(10,102,194,.08) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);
+}
+.hero-glow{
+  position:absolute;width:680px;height:680px;border-radius:50%;
+  background:radial-gradient(circle,rgba(10,102,194,.16),transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;z-index:0;
+  animation:gpulse 6s ease-in-out infinite;
+}
+.hero-glow2{
+  position:absolute;width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,200,255,.09),transparent 70%);
+  top:28%;left:62%;pointer-events:none;z-index:0;
+  animation:gpulse 8s ease-in-out 2s infinite;
+}
+@keyframes gpulse{
+  0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  50%{opacity:.65;transform:translate(-50%,-50%) scale(1.13);}
+}
+/* All hero content above glows */
+#hero > *:not(.hero-grid):not(.hero-glow):not(.hero-glow2){position:relative;z-index:1;}
+
+.badge{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:1.8rem;
+  padding:.34rem 1rem;border-radius:100px;
+  font-size:.78rem;font-weight:600;color:var(--cyan);
+  letter-spacing:.05em;text-transform:uppercase;
+  background:rgba(10,102,194,.13);border:1px solid rgba(10,102,194,.34);
+  text-decoration:none;transition:box-shadow .2s;
+}
+.badge:hover{box-shadow:0 0 18px var(--glow);}
+.badge-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 7px var(--cyan);
+  flex-shrink:0;animation:bdot 2s ease-in-out infinite;
+}
+@keyframes bdot{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(2.4rem,7vw,6.5rem);
+  line-height:1.05;letter-spacing:-.03em;
+  max-width:880px;margin:0 auto 1.4rem;
+}
+.grad{
+  background:linear-gradient(90deg,var(--blue),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(.98rem,1.8vw,1.22rem);color:var(--muted);
+  max-width:540px;line-height:1.75;margin:0 auto 2.8rem;font-weight:300;
+}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:4.5rem;}
+.btn-p{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;
+  padding:.86rem 2.4rem;border-radius:100px;text-decoration:none;color:#fff;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  box-shadow:0 0 28px var(--glow),0 8px 28px rgba(0,0,0,.4);
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 0 46px var(--glow),0 12px 38px rgba(0,0,0,.5);}
+.btn-s{
+  font-family:'Syne',sans-serif;font-weight:600;font-size:1rem;
+  padding:.86rem 2.4rem;border-radius:100px;text-decoration:none;
+  color:var(--white);background:var(--card);border:1px solid var(--border);
+  transition:background .2s,border-color .2s;
+}
+.btn-s:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);}
+
+/* ─── MOCK PREVIEW ───────────────────────── */
+.mock-wrap{width:min(820px,92vw);}
+.mock{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.04),0 36px 72px rgba(0,0,0,.6),0 0 56px var(--glow);
+}
+.mock-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:8px;}
+.dot{width:12px;height:12px;border-radius:50%;}
+.dr{background:#ff5f57;}.dy{background:#ffbd2e;}.dg{background:#28c840;}
+.mock-url{flex:1;margin-left:10px;padding:4px 12px;border-radius:6px;background:rgba(255,255,255,.05);font-family:monospace;font-size:.72rem;color:var(--muted);}
+.mock-body{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.mock-l{display:flex;flex-direction:column;gap:12px;}
+.mock-l label{display:block;font-size:.68rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;font-weight:500;margin-bottom:4px;}
+.mock-inp{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:.82rem;width:100%;}
+.mock-btn{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;padding:.62rem 1.3rem;border-radius:10px;border:none;cursor:pointer;box-shadow:0 0 12px var(--glow);}
+.mock-r{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:10px;}
+.ring-row{display:flex;align-items:center;gap:13px;}
+.ring{width:60px;height:60px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--cyan) 0% 72%,rgba(255,255,255,.07) 72%);}
+.ring::after{content:'';position:absolute;width:44px;height:44px;background:var(--bg3);border-radius:50%;}
+.ring-n{font-family:'Syne',sans-serif;font-weight:800;font-size:.92rem;color:var(--cyan);position:relative;z-index:1;}
+.ring-lbl{font-size:.76rem;color:var(--white);font-weight:600;}
+.ring-sub{font-size:.68rem;color:var(--muted);}
+.ri{display:flex;gap:7px;align-items:flex-start;font-size:.71rem;color:var(--muted);line-height:1.45;}
+.rdot{width:6px;height:6px;background:var(--cyan);border-radius:50%;margin-top:4px;flex-shrink:0;}
+
+/* ─── MARQUEE ─────────────────────────────── */
+.mq-wrap{overflow:hidden;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0;}
+.mq-track{display:flex;gap:3.2rem;white-space:nowrap;animation:marquee 28s linear infinite;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.mqi{font-family:'Syne',sans-serif;font-size:.86rem;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:.8rem;}
+.mqi .sep{color:var(--blue);}
+
+/* ─── SCROLL REVEAL ───────────────────────── */
+/* Default: visible. JS adds .will-rv to elements on load, then reveals on scroll */
+.will-rv{opacity:0;transform:translateY(36px);transition:opacity .6s ease,transform .6s ease;}
+.will-rl{opacity:0;transform:translateX(-36px);transition:opacity .6s ease,transform .6s ease;}
+.will-rr{opacity:0;transform:translateX(36px);transition:opacity .6s ease,transform .6s ease;}
+.revealed{opacity:1 !important;transform:none !important;}
+.d1{transition-delay:.05s;}.d2{transition-delay:.12s;}.d3{transition-delay:.19s;}.d4{transition-delay:.26s;}.d5{transition-delay:.33s;}
+
+/* ─── SECTIONS ─────────────────────────────── */
+section{padding:110px 5vw;position:relative;}
+.sl{font-size:.75rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.13em;margin-bottom:.9rem;display:flex;align-items:center;gap:10px;}
+.sl::before{content:'';width:20px;height:1.5px;background:var(--cyan);}
+.sc{text-align:center;}
+.sc .sl{justify-content:center;}.sc .sl::before{display:none;}
+.sc h2{margin:0 auto;}
+h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.9rem,4vw,3.4rem);line-height:1.1;letter-spacing:-.024em;max-width:700px;}
+.ssub{color:var(--muted);font-size:1.02rem;line-height:1.78;max-width:560px;margin-top:1rem;font-weight:300;}
+.sc .ssub{margin:1rem auto 0;}
+
+/* ─── PROBLEM ─────────────────────────────── */
+#problem{background:linear-gradient(180deg,var(--bg),var(--bg2));}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:3.8rem;}
+.pcards{display:flex;flex-direction:column;gap:14px;}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;gap:14px;align-items:flex-start;transition:border-color .3s,transform .3s;}
+.pc:hover{border-color:rgba(10,102,194,.3);transform:translateX(4px);}
+.pico{width:40px;height:40px;flex-shrink:0;border-radius:10px;font-size:1rem;display:flex;align-items:center;justify-content:center;background:rgba(10,102,194,.12);border:1px solid rgba(10,102,194,.22);}
+.pc h4{font-family:'Syne',sans-serif;font-weight:700;font-size:.91rem;margin-bottom:4px;}
+.pc p{font-size:.83rem;color:var(--muted);line-height:1.6;}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;text-align:center;transition:border-color .3s;}
+.stat:hover{border-color:rgba(0,200,255,.2);}
+.stn{font-family:'Syne',sans-serif;font-weight:800;font-size:2.5rem;color:var(--cyan);line-height:1;letter-spacing:-.03em;display:inline;}
+.stu{font-family:'Syne',sans-serif;font-weight:800;font-size:1.7rem;color:var(--cyan);display:inline;}
+.stl{font-size:.82rem;color:var(--muted);line-height:1.5;margin-top:6px;}
+
+/* ─── SOLUTION ────────────────────────────── */
+#solution{background:var(--bg2);}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:center;margin-top:3.8rem;}
+.steps{display:flex;flex-direction:column;position:relative;}
+.steps::before{content:'';position:absolute;left:19px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--blue),transparent);}
+.step{display:flex;gap:18px;align-items:flex-start;padding-bottom:32px;position:relative;}
+.step:last-child{padding-bottom:0;}
+.snum{width:38px;height:38px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.86rem;color:#fff;box-shadow:0 0 14px var(--glow);position:relative;z-index:1;}
+.step h4{font-family:'Syne',sans-serif;font-weight:700;font-size:.96rem;margin-bottom:5px;}
+.step p{font-size:.84rem;color:var(--muted);line-height:1.6;}
+.sv{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:28px;box-shadow:0 0 38px rgba(0,0,0,.4);position:relative;overflow:hidden;}
+.sv::after{content:'';position:absolute;top:0;right:0;width:160px;height:160px;background:radial-gradient(circle,rgba(10,102,194,.14),transparent 70%);pointer-events:none;}
+.pmock{display:flex;gap:13px;align-items:center;margin-bottom:20px;}
+.ava{width:52px;height:52px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;}
+.pi h5{font-family:'Syne',sans-serif;font-weight:700;font-size:.91rem;}
+.pi span{font-size:.76rem;color:var(--muted);}
+.bw{margin-bottom:16px;}
+.bw h6{font-family:'Syne',sans-serif;font-weight:700;font-size:.73rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:9px;}
+.br{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.bl{font-size:.73rem;color:var(--muted);width:86px;flex-shrink:0;}
+.bt{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;}
+.bf{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--cyan));width:0;transition:width 1.2s ease;}
+.bp{font-size:.71rem;font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan);width:32px;text-align:right;}
+.ai-box{background:rgba(10,102,194,.1);border:1px solid rgba(10,102,194,.24);border-radius:11px;padding:13px;font-size:.79rem;line-height:1.6;color:var(--muted);}
+.ai-box strong{color:var(--white);}
+
+/* ─── FEATURES ────────────────────────────── */
+#features{background:var(--bg);}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:3.2rem;}
+.fc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 24px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s;}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:0;transition:opacity .3s;}
+.fc:hover{transform:translateY(-5px);border-color:rgba(10,102,194,.28);box-shadow:0 18px 36px rgba(0,0,0,.28),0 0 18px var(--glow);}
+.fc:hover::before{opacity:1;}
+.fc.ft{background:linear-gradient(135deg,rgba(10,102,194,.11),rgba(0,200,255,.05));border-color:rgba(10,102,194,.32);}
+.fi{width:48px;height:48px;background:rgba(10,102,194,.12);border:1px solid rgba(10,102,194,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.28rem;margin-bottom:16px;}
+.fc h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:8px;}
+.fc p{font-size:.84rem;color:var(--muted);line-height:1.7;}
+.ftag{display:inline-block;margin-top:12px;padding:.2rem .68rem;border-radius:100px;font-size:.68rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.2);color:var(--cyan);}
+
+/* ─── HELPS ───────────────────────────────── */
+#helps{background:var(--bg2);}
+.hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:3.2rem;}
+.hc{background:var(--bg3);border:1px solid var(--border);border-radius:18px;padding:36px 24px;text-align:center;transition:transform .3s,box-shadow .3s;}
+.hc:hover{transform:translateY(-5px);box-shadow:0 18px 36px rgba(0,0,0,.28);}
+.he{font-size:2.2rem;margin-bottom:13px;display:block;}
+.hc h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:10px;}
+.hc p{font-size:.84rem;color:var(--muted);line-height:1.7;}
+
+/* ─── FAQ ─────────────────────────────────── */
+#faq{background:var(--bg);}
+.faq-list{max-width:700px;margin:3.2rem auto 0;display:flex;flex-direction:column;gap:10px;}
+.fq{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .3s;}
+.fq:hover{border-color:rgba(10,102,194,.28);}
+.fq-q{padding:19px 20px;font-family:'Syne',sans-serif;font-weight:700;font-size:.91rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none;}
+.arr{color:var(--cyan);font-size:1.05rem;transition:transform .3s;flex-shrink:0;}
+.fq.open .arr{transform:rotate(45deg);}
+.fq-a{max-height:0;overflow:hidden;padding:0 20px;font-size:.84rem;color:var(--muted);line-height:1.75;transition:max-height .36s ease,padding .28s;}
+.fq.open .fq-a{max-height:260px;padding:0 20px 18px;}
+
+/* ─── WAITLIST ─────────────────────────────── */
+#waitlist{background:var(--bg2);text-align:center;position:relative;overflow:hidden;}
+#waitlist::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(10,102,194,.11),transparent 70%);}
+.wgbg{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(10,102,194,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(10,102,194,.05) 1px,transparent 1px);background-size:60px 60px;-webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent);mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent);}
+.wl-inner{position:relative;max-width:540px;margin:0 auto;}
+.wl-inner h2{margin:0 auto;}
+.wlform{margin-top:2.6rem;background:var(--bg3);border:1px solid var(--border);border-radius:22px;padding:36px;box-shadow:0 0 56px rgba(0,0,0,.4);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.fgrp{display:flex;flex-direction:column;}
+.fgrp label{font-size:.71rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:6px;}
+.fgrp input{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:13px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.93rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+.fgrp input::placeholder{color:rgba(255,255,255,.18);}
+.fgrp input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,102,194,.14);}
+.fsub{width:100%;background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;padding:.96rem;border:none;border-radius:11px;cursor:pointer;letter-spacing:.03em;box-shadow:0 0 22px var(--glow);transition:transform .2s,box-shadow .2s,opacity .2s;margin-top:3px;}
+.fsub:hover{transform:translateY(-2px);box-shadow:0 0 36px var(--glow);}
+.fsub:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.fnote{font-size:.74rem;color:var(--muted);margin-top:10px;}
+.fok{display:none;text-align:center;padding:16px 0;}
+.fok .ck{width:56px;height:56px;border-radius:50%;margin:0 auto 13px;font-size:1.4rem;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px var(--glow);}
+.fok h4{font-family:'Syne',sans-serif;font-weight:800;font-size:1.14rem;margin-bottom:6px;}
+.fok p{font-size:.84rem;color:var(--muted);}
+
+/* ─── CONTACT ─────────────────────────────── */
+#contact{background:var(--bg);}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:3.2rem;max-width:840px;margin-left:auto;margin-right:auto;}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;}
+.cc h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:16px;}
+.ci{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.cico{width:38px;height:38px;flex-shrink:0;border-radius:9px;font-size:.9rem;display:flex;align-items:center;justify-content:center;background:rgba(10,102,194,.12);border:1px solid rgba(10,102,194,.2);}
+.ctx{font-size:.86rem;}
+.ctx span{display:block;font-size:.68rem;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;}
+.ctx a{color:var(--white);text-decoration:none;transition:color .2s;}
+.ctx a:hover{color:var(--cyan);}
+.abox{background:linear-gradient(135deg,rgba(10,102,194,.09),rgba(0,200,255,.04));border:1px solid rgba(10,102,194,.26);border-radius:18px;padding:28px;text-align:center;}
+.abox h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:10px;}
+.abox p{font-size:.86rem;color:var(--muted);line-height:1.7;}
+.abox a{color:var(--cyan);text-decoration:none;font-weight:600;}
+.abox a:hover{text-decoration:underline;}
+
+/* ─── FOOTER ──────────────────────────────── */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:44px 5vw 22px;}
+.ft-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2.5rem;margin-bottom:36px;}
+.ft-brand{max-width:260px;}
+.ft-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ft-logo-img{width:30px;height:30px;border-radius:8px;overflow:hidden;background:#0d1f3c;}
+.ft-logo-img img{width:100%;height:100%;object-fit:cover;display:block;mix-blend-mode:screen;}
+.ft-logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;}
+.ft-logo-name em{font-style:normal;color:var(--cyan);}
+.ft-desc{font-size:.79rem;color:var(--muted);line-height:1.65;}
+.ft-pw{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:.72rem;color:var(--muted);}
+.ft-pw a{color:var(--cyan);text-decoration:none;font-weight:600;}
+.ft-pw a:hover{text-decoration:underline;}
+.ft-col h5{font-family:'Syne',sans-serif;font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:12px;}
+.ft-col a{display:block;font-size:.82rem;color:var(--muted);text-decoration:none;margin-bottom:8px;transition:color .2s;cursor:pointer;}
+.ft-col a:hover{color:var(--white);}
+.ft-bot{display:flex;align-items:center;justify-content:space-between;padding-top:20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:10px;}
+.ft-bot p{font-size:.75rem;color:var(--muted);}
+.ft-bot-links{display:flex;gap:1.3rem;}
+.ft-bot-links a{font-size:.75rem;color:var(--muted);text-decoration:none;cursor:pointer;transition:color .2s;}
+.ft-bot-links a:hover{color:var(--white);}
+
+/* ─── MODALS ──────────────────────────────── */
+.mbg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.76);backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:20px;}
+.mbg.open{display:flex;}
+.mbox{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:36px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;position:relative;}
+.mbox h3{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;margin-bottom:5px;}
+.mdate{font-size:.76rem;color:var(--muted);margin-bottom:20px;}
+.mbox h4{font-family:'Syne',sans-serif;font-weight:700;font-size:.94rem;color:var(--cyan);margin:16px 0 6px;}
+.mbox p{font-size:.84rem;color:var(--muted);line-height:1.8;margin-bottom:5px;}
+.mx{position:absolute;top:13px;right:13px;width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.82rem;transition:color .2s,background .2s;}
+.mx:hover{color:var(--white);background:rgba(255,255,255,.09);}
+
+/* ─── RESPONSIVE ──────────────────────────── */
+@media(max-width:960px){
+  .pg,.sg,.cg{grid-template-columns:1fr;gap:2.2rem;}
+  .fgrid{grid-template-columns:1fr 1fr;}
+  .hgrid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .mock-body{grid-template-columns:1fr;}
+  .stats{grid-template-columns:1fr 1fr;}
+  #nav .nav-links{display:none;}
+  .burger{display:flex;}
+  .nav-right .nav-cta{display:none;}
+  .ft-top{flex-direction:column;}
+}
+@media(max-width:600px){
+  h1{font-size:clamp(2rem,9vw,3rem);}
+  section{padding:72px 5vw;}
+  .fgrid{grid-template-columns:1fr;}
+  .hgrid{gap:13px;}
+  .pcards{gap:11px;}
+  .pc{padding:15px;}
+  .stats{gap:11px;}
+  .stat{padding:18px 13px;}
+  .stn{font-size:1.9rem;}
+  .stu{font-size:1.5rem;}
+  .fc{padding:22px 18px;}
+  .hc{padding:28px 18px;}
+  .wlform{padding:20px 15px;}
+  .cc,.abox{padding:22px 18px;}
+  .cg{gap:14px;}
+  .faq-list{gap:8px;}
+  .fq-q{padding:15px 16px;font-size:.88rem;}
+  .hero-btns{margin-bottom:0;}
+  .btn-p,.btn-s{width:100%;text-align:center;padding:.82rem 1.4rem;}
+  .mock-wrap{display:none;}
+  .ft-bot{flex-direction:column;text-align:center;}
+  .ft-bot-links{flex-direction:column;gap:.35rem;align-items:center;}
+  .mbox{padding:28px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE MENU -->
+<div id="mob-menu">
+  <a href="#problem" onclick="closeMob()">Problem</a>
+  <a href="#solution" onclick="closeMob()">Solution</a>
+  <a href="#features" onclick="closeMob()">Features</a>
+  <a href="#faq" onclick="closeMob()">FAQ</a>
+  <a href="#contact" onclick="closeMob()">Contact</a>
+  <a href="#waitlist" class="mob-cta" onclick="closeMob()">Join Waitlist &rarr;</a>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="logo-img">
+      <img src="logo.png" alt="LinkSense AI"/>
+    </div>
+    <span>LinkSense <span class="logo-ai">AI</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="lang-btn" id="langBtn" onclick="switchLang()">&Epsilon;&Lambda;</button>
+    <a href="#waitlist" class="nav-cta" id="navCta">Join Waitlist &rarr;</a>
+    <button class="burger" onclick="toggleMob()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <a href="https://automatesphereai.com" target="_blank" rel="noopener" class="badge" id="heroBadge">
+    <span class="badge-dot"></span>
+    Powered by Automatesphere AI
+  </a>
+
+  <h1 id="heroH1">Your LinkedIn is costing you <span class="grad">opportunities</span></h1>
+  <p class="hero-sub" id="heroSub">LinkSense AI analyzes your entire profile with AI, gives you a real score, and tells you exactly what to fix to attract recruiters, clients, and partners.</p>
+
+  <div class="hero-btns">
+    <a href="#waitlist" class="btn-p" id="heroCta1">Join the Waitlist</a>
+    <a href="#solution" class="btn-s" id="heroCta2">See How It Works &#8595;</a>
+  </div>
+
+  <div class="mock-wrap">
+    <div class="mock">
+      <div class="mock-bar">
+        <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+        <span class="mock-url">linksense.ai/analyze</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-l">
+          <div><label>LinkedIn Profile URL</label><input class="mock-inp" value="linkedin.com/in/yourprofile" readonly></div>
+          <div><label>Your Goal</label><input class="mock-inp" value="Get hired as a Senior Engineer" readonly></div>
+          <button class="mock-btn">&#10022; Analyze My Profile</button>
+        </div>
+        <div class="mock-r">
+          <div class="ring-row">
+            <div class="ring"><span class="ring-n">72</span></div>
+            <div><div class="ring-lbl">Profile Score</div><div class="ring-sub">Needs improvement</div></div>
+          </div>
+          <div class="ri"><div class="rdot"></div><span>Headline lacks keywords &mdash; recruiters won't find you</span></div>
+          <div class="ri"><div class="rdot"></div><span>About section too short, no call to action</span></div>
+          <div class="ri"><div class="rdot"></div><span>Missing 4 key skills for your target role</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq-wrap">
+  <div class="mq-track">
+    <div class="mqi">Profile Analysis <span class="sep">&#10022;</span></div>
+    <div class="mqi">AI Recommendations <span class="sep">&#10022;</span></div>
+    <div class="mqi">Keyword Optimization <span class="sep">&#10022;</span></div>
+    <div class="mqi">Recruiter View Score <span class="sep">&#10022;</span></div>
+    <div class="mqi">Headline Rewrite <span class="sep">&#10022;</span></div>
+    <div class="mqi">Skills Gap Analysis <span class="sep">&#10022;</span></div>
+    <div class="mqi">ATS Optimization <span class="sep">&#10022;</span></div>
+    <div class="mqi">Career Goal Alignment <span class="sep">&#10022;</span></div>
+    <div class="mqi">Profile Analysis <span class="sep">&#10022;</span></div>
+    <div class="mqi">AI Recommendations <span class="sep">&#10022;</span></div>
+    <div class="mqi">Keyword Optimization <span class="sep">&#10022;</span></div>
+    <div class="mqi">Recruiter View Score <span class="sep">&#10022;</span></div>
+    <div class="mqi">Headline Rewrite <span class="sep">&#10022;</span></div>
+    <div class="mqi">Skills Gap Analysis <span class="sep">&#10022;</span></div>
+    <div class="mqi">ATS Optimization <span class="sep">&#10022;</span></div>
+    <div class="mqi">Career Goal Alignment <span class="sep">&#10022;</span></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="pg">
+    <div>
+      <div class="sl rv">The Problem</div>
+      <h2 class="rv d1">Most LinkedIn profiles are invisible to the right people</h2>
+      <p class="ssub rv d2">You spent years building your career. But your profile doesn't reflect that &mdash; and you're losing opportunities every single day without knowing why.</p>
+      <div class="pcards" style="margin-top:2.2rem">
+        <div class="pc rv d2"><div class="pico">&#128269;</div><div><h4>You're not showing up in searches</h4><p>LinkedIn's algorithm buries profiles with poor keyword density and low engagement scores.</p></div></div>
+        <div class="pc rv d3"><div class="pico">&#128172;</div><div><h4>Your headline doesn't sell you</h4><p>Most people write a job title. Recruiters skip profiles that don't instantly communicate value.</p></div></div>
+        <div class="pc rv d4"><div class="pico">&#127919;</div><div><h4>Generic feedback that doesn't help</h4><p>LinkedIn's own tips are vague. No tool analyzes YOUR profile against YOUR specific goal.</p></div></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat rv d1"><div><span class="stn" data-cu="87">0</span><span class="stu">%</span></div><div class="stl">of recruiters use LinkedIn to find candidates</div></div>
+      <div class="stat rv d2"><div><span class="stn" data-cu="6">0</span><span class="stu">s</span></div><div class="stl">average time a recruiter spends on your profile</div></div>
+      <div class="stat rv d3"><div><span class="stn" data-cu="3">0</span><span class="stu">&times;</span></div><div class="stl">more profile views with an optimized headline</div></div>
+      <div class="stat rv d4"><div><span class="stn" data-cu="70">0</span><span class="stu">%</span></div><div class="stl">of profiles miss basic optimization</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="sg">
+    <div>
+      <div class="sl rv">The Solution</div>
+      <h2 class="rv d1">AI that actually reads your profile and tells you what to fix</h2>
+      <p class="ssub rv d2">Three simple steps. Real insights. Actionable results tied to your exact career goal.</p>
+      <div class="steps" style="margin-top:2.2rem">
+        <div class="step rv d2"><div class="snum">1</div><div><h4>Paste your LinkedIn URL &amp; your goal</h4><p>Tell us what you're aiming for &mdash; new job, more clients, building a personal brand.</p></div></div>
+        <div class="step rv d3"><div class="snum">2</div><div><h4>We extract every detail from your profile</h4><p>Headline, About, Experience, Skills, Recommendations &mdash; all processed by our AI engine.</p></div></div>
+        <div class="step rv d4"><div class="snum">3</div><div><h4>Get your score + personalized action plan</h4><p>A breakdown by section with a real score, specific rewrites, and priority fixes ranked by impact.</p></div></div>
+      </div>
+    </div>
+    <div class="sv rr">
+      <div class="pmock"><div class="ava">JS</div><div class="pi"><h5>James S. &mdash; Software Engineer</h5><span>Goal: Land a Senior Engineering role</span></div></div>
+      <div class="bw">
+        <h6>Section Scores</h6>
+        <div class="br"><span class="bl">Headline</span><div class="bt"><div class="bf" data-w="42"></div></div><span class="bp">42%</span></div>
+        <div class="br"><span class="bl">About</span><div class="bt"><div class="bf" data-w="68"></div></div><span class="bp">68%</span></div>
+        <div class="br"><span class="bl">Experience</span><div class="bt"><div class="bf" data-w="81"></div></div><span class="bp">81%</span></div>
+        <div class="br"><span class="bl">Skills</span><div class="bt"><div class="bf" data-w="55"></div></div><span class="bp">55%</span></div>
+        <div class="br"><span class="bl">Keywords</span><div class="bt"><div class="bf" data-w="33"></div></div><span class="bp">33%</span></div>
+      </div>
+      <div class="ai-box"><strong>&#10022; Top Priority Fix:</strong> Your headline "Software Engineer at Acme" has zero keywords. Rewrite to: <strong>"Senior Software Engineer | React &middot; Node.js &middot; AWS | Building scalable products"</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="sc">
+    <div class="sl rv">Features</div>
+    <h2 class="rv d1">Everything you need to dominate LinkedIn</h2>
+    <p class="ssub rv d2">Built for job seekers, freelancers, founders, and anyone who wants their profile to work harder for them.</p>
+  </div>
+  <div class="fgrid">
+    <div class="fc rv d1"><div class="fi">&#129504;</div><h3>AI Profile Analysis</h3><p>Deep analysis of every section &mdash; headline, about, experience, skills, and even your activity.</p><span class="ftag">Core</span></div>
+    <div class="fc ft rv d2"><div class="fi">&#127919;</div><h3>Goal-Aligned Scoring</h3><p>We score your profile against your exact goal. Hiring, freelancing, and brand-building each need a different LinkedIn.</p><span class="ftag">Unique</span></div>
+    <div class="fc rv d3"><div class="fi">&#9997;&#65039;</div><h3>Rewrite Suggestions</h3><p>We don't just point out problems &mdash; we give you ready-to-use rewrites for every section.</p><span class="ftag">Core</span></div>
+    <div class="fc rv d2"><div class="fi">&#128273;</div><h3>Keyword Gap Finder</h3><p>Identifies missing keywords that recruiters and LinkedIn's algorithm are looking for.</p><span class="ftag">Powerful</span></div>
+    <div class="fc rv d3"><div class="fi">&#128202;</div><h3>Section-by-Section Score</h3><p>See exactly which sections are dragging your profile down, ordered by impact.</p><span class="ftag">Core</span></div>
+    <div class="fc rv d4"><div class="fi">&#9889;</div><h3>Instant Results</h3><p>Paste your URL and get a full report in under 30 seconds &mdash; no account needed.</p><span class="ftag">Fast</span></div>
+  </div>
+</section>
+
+<!-- HELPS -->
+<section id="helps">
+  <div class="sc">
+    <div class="sl rv">Who It Helps</div>
+    <h2 class="rv d1">Built for every professional stage</h2>
+    <p class="ssub rv d2">Whether you're job hunting, building a business, or growing your network &mdash; your LinkedIn should work for you 24/7.</p>
+  </div>
+  <div class="hgrid">
+    <div class="hc rv d1"><span class="he">&#128188;</span><h3>Job Seekers</h3><p>Stop getting ghosted. Optimize your profile so recruiters actively reach out. Know exactly what's holding you back from landing interviews.</p></div>
+    <div class="hc rv d2"><span class="he">&#128640;</span><h3>Founders &amp; Freelancers</h3><p>LinkedIn is your best lead generation tool &mdash; but only if it's set up right. Get clients finding you organically.</p></div>
+    <div class="hc rv d3"><span class="he">&#127760;</span><h3>Personal Brand Builders</h3><p>Your profile needs to convert visitors into followers, connections, and opportunities.</p></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="sc">
+    <div class="sl rv">FAQ</div>
+    <h2 class="rv d1">Frequently asked questions</h2>
+  </div>
+  <div class="faq-list">
+    <div class="fq rv d1"><div class="fq-q">How does LinkSense AI access my profile? <span class="arr">+</span></div><div class="fq-a">You simply paste your public LinkedIn URL. We extract publicly visible data &mdash; no login, no credentials, no access to your account required.</div></div>
+    <div class="fq rv d2"><div class="fq-q">Is my data private and secure? <span class="arr">+</span></div><div class="fq-a">Yes. We only process data you submit. Your analysis is never shared. We use secure infrastructure and do not sell your data.</div></div>
+    <div class="fq rv d3"><div class="fq-q">How is this different from LinkedIn's own tips? <span class="arr">+</span></div><div class="fq-a">LinkedIn gives generic advice. We give specific, goal-aligned feedback tied to your career objective &mdash; with actual rewrites, not vague suggestions.</div></div>
+    <div class="fq rv d4"><div class="fq-q">How accurate is the AI scoring? <span class="arr">+</span></div><div class="fq-a">Our scoring model is built on best practices from thousands of successful profiles and LinkedIn algorithm signals. It's significantly more actionable than anything else available.</div></div>
+    <div class="fq rv d5"><div class="fq-q">When will LinkSense AI launch? <span class="arr">+</span></div><div class="fq-a">We're in active development. Join the waitlist and you'll be among the first to get access &mdash; we'll also send early-bird updates and exclusive previews.</div></div>
+    <div class="fq rv d1"><div class="fq-q">Will there be a free plan? <span class="arr">+</span></div><div class="fq-a">Yes. We plan a free tier with core analysis and a paid tier for deeper insights. Waitlist members get extended free access at launch.</div></div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section id="waitlist">
+  <div class="wgbg"></div>
+  <div class="wl-inner">
+    <h2 class="rv">Be the first to <span class="grad">optimize your LinkedIn</span></h2>
+    <p class="ssub rv d1">Get early access, launch-day perks, and exclusive updates. No spam &mdash; just the good stuff.</p>
+    <div class="wlform rv d2">
+      <div id="formWrap">
+        <div class="form-row">
+          <div class="fgrp"><label>First Name</label><input type="text" id="wlName" placeholder="Alex" autocomplete="off"></div>
+          <div class="fgrp"><label>Email Address</label><input type="email" id="wlEmail" placeholder="alex@company.com" autocomplete="off"></div>
+        </div>
+        <button class="fsub" id="wlBtn" onclick="doWL()">&#10022; Join the Waitlist &mdash; It's Free</button>
+        <p class="fnote">&#128274; No credit card. No spam. Unsubscribe anytime.</p>
+      </div>
+      <div class="fok" id="wlOk">
+        <div class="ck">&#10003;</div>
+        <h4>You're on the list!</h4>
+        <p>We'll reach out as soon as LinkSense AI is ready. Watch your inbox for exclusive updates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sc">
+    <div class="sl rv">Contact</div>
+    <h2 class="rv d1">Get in touch</h2>
+    <p class="ssub rv d2">Have questions or want to collaborate? We'd love to hear from you.</p>
+  </div>
+  <div class="cg">
+    <div class="cc rl">
+      <h3>Contact Information</h3>
+      <div class="ci"><div class="cico">&#9993;</div><div class="ctx"><span>Email</span><a href="mailto:me&#64;georgeapostolakis.com">me&#64;georgeapostolakis.com</a></div></div>
+    </div>
+    <div class="abox rr">
+      <span style="font-size:2.2rem;display:block;margin-bottom:13px;">&#129302;</span>
+      <h3>Want to adapt AI for your business?</h3>
+      <p>If you want to implement AI solutions in your company or project, visit <a href="https://automatesphereai.com" target="_blank" rel="noopener">Automatesphere AI</a> &mdash; we help businesses leverage the power of artificial intelligence to automate, grow, and innovate.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-top">
+    <div class="ft-brand">
+      <div class="ft-logo">
+        <div class="ft-logo-img"><img src="logo.png" alt="LinkSense AI"/></div>
+        <span class="ft-logo-name">LinkSense <em>AI</em></span>
+      </div>
+      <p class="ft-desc">AI-powered LinkedIn profile optimization. Get a real score and actionable recommendations to stand out.</p>
+      <div class="ft-pw">&#9889; Powered by <a href="https://automatesphereai.com" target="_blank" rel="noopener">Automatesphere AI</a></div>
+    </div>
+    <div class="ft-col">
+      <h5>Navigation</h5>
+      <a href="#problem">The Problem</a>
+      <a href="#solution">The Solution</a>
+      <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="ft-col">
+      <h5>Contact</h5>
+      <a href="mailto:me&#64;georgeapostolakis.com">me&#64;georgeapostolakis.com</a>
+      <a href="https://automatesphereai.com" target="_blank" rel="noopener">Automatesphere AI</a>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <p>&copy; 2025 LinkSense AI. All rights reserved.</p>
+    <div class="ft-bot-links">
+      <a onclick="openM('mPrivacy')">Privacy Policy</a>
+      <a onclick="openM('mTerms')">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<!-- PRIVACY MODAL -->
+<div class="mbg" id="mPrivacy" onclick="if(event.target===this)closeM('mPrivacy')">
+  <div class="mbox">
+    <div class="mx" onclick="closeM('mPrivacy')">&#10005;</div>
+    <h3>Privacy Policy</h3><p class="mdate">Last updated: 2025</p>
+    <h4>Data We Collect</h4><p>We collect the name and email you provide when joining our waitlist. We also process the public LinkedIn profile URL you submit for analysis. We do not collect passwords or any sensitive credentials.</p>
+    <h4>How We Use Your Data</h4><p>Your data is used solely to provide our service, notify you about product updates, and improve our AI analysis. We never sell your personal data to third parties.</p>
+    <h4>Data Storage &amp; Security</h4><p>Waitlist data is stored securely. Profile analyses are processed temporarily and not stored long-term. We apply industry-standard security measures.</p>
+    <h4>Your Rights</h4><p>You have the right to request deletion of your data at any time. Contact us at me&#64;georgeapostolakis.com to exercise this right.</p>
+    <h4>Contact</h4><p>me&#64;georgeapostolakis.com</p>
+  </div>
+</div>
+
+<!-- TERMS MODAL -->
+<div class="mbg" id="mTerms" onclick="if(event.target===this)closeM('mTerms')">
+  <div class="mbox">
+    <div class="mx" onclick="closeM('mTerms')">&#10005;</div>
+    <h3>Terms of Service</h3><p class="mdate">Last updated: 2025</p>
+    <h4>Acceptance of Terms</h4><p>By using LinkSense AI, you agree to these Terms of Service. If you do not agree, please do not use our service.</p>
+    <h4>Use of Service</h4><p>LinkSense AI is provided for personal and professional use. You agree not to misuse the service or use it for any unlawful purpose.</p>
+    <h4>LinkedIn Data</h4><p>You must only submit publicly accessible LinkedIn profile URLs. By submitting a URL, you confirm you have the right to analyze that profile.</p>
+    <h4>AI Analysis Disclaimer</h4><p>Our AI analysis is provided as guidance only. We do not guarantee specific career outcomes. Results may vary depending on individual circumstances.</p>
+    <h4>Limitation of Liability</h4><p>LinkSense AI shall not be liable for any indirect or consequential damages arising from use of the service.</p>
+    <h4>Contact</h4><p>me&#64;georgeapostolakis.com</p>
+  </div>
+</div>
+
+<script>
+// ── NAV scroll ──────────────────────────────────────────────
+window.addEventListener('scroll', function() {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── MOBILE MENU ─────────────────────────────────────────────
+function toggleMob() { document.getElementById('mob-menu').classList.toggle('open'); }
+function closeMob()  { document.getElementById('mob-menu').classList.remove('open'); }
+
+// ── MODALS ──────────────────────────────────────────────────
+function openM(id)  { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.mbg.open').forEach(function(m) { m.classList.remove('open'); });
+  }
+});
+
+// ── SCROLL REVEAL ───────────────────────────────────────────
+// Strategy: elements visible by default. JS hides them AFTER load, then reveals on scroll.
+// If JS fails for any reason → everything stays visible.
+window.addEventListener('load', function() {
+  var revealEls = document.querySelectorAll('.rv');
+  var revealLeft = document.querySelectorAll('.rl');
+  var revealRight = document.querySelectorAll('.rr');
+
+  // Add hidden state via JS only
+  revealEls.forEach(function(el) { el.classList.add('will-rv'); });
+  revealLeft.forEach(function(el) { el.classList.add('will-rl'); });
+  revealRight.forEach(function(el) { el.classList.add('will-rr'); });
+
+  var all = Array.from(revealEls).concat(Array.from(revealLeft)).concat(Array.from(revealRight));
+
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -10px 0px' });
+
+  all.forEach(function(el) { obs.observe(el); });
+
+  // Safety: after 1.5s reveal everything that hasn't been revealed
+  setTimeout(function() {
+    all.forEach(function(el) { el.classList.add('revealed'); });
+  }, 1500);
+});
+
+// ── PROGRESS BARS ───────────────────────────────────────────
+(function() {
+  var barObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.bf').forEach(function(b) {
+          setTimeout(function() { b.style.width = b.getAttribute('data-w') + '%'; }, 200);
+        });
+        barObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0 });
+  document.querySelectorAll('.sv').forEach(function(el) { barObs.observe(el); });
+})();
+
+// ── COUNT UP ────────────────────────────────────────────────
+(function() {
+  function countUp(el) {
+    if (el._done) return;
+    el._done = true;
+    var target = parseInt(el.getAttribute('data-cu'), 10);
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / 1600, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.floor(ease * target);
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(step);
+  }
+  var cuObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) { countUp(entry.target); cuObs.unobserve(entry.target); }
+    });
+  }, { threshold: 0 });
+  document.querySelectorAll('[data-cu]').forEach(function(el) { cuObs.observe(el); });
+})();
+
+// ── FAQ ──────────────────────────────────────────────────────
+document.querySelectorAll('.fq-q').forEach(function(q) {
+  q.addEventListener('click', function() {
+    var item = q.parentElement;
+    var wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.fq.open').forEach(function(i) { i.classList.remove('open'); });
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+// ── WAITLIST ─────────────────────────────────────────────────
+// Your Supabase project URL and its public anon key. The anon key is meant to
+// be public; supabase/setup.sql only lets it insert rows, never read them.
+var WAITLIST = { url: '', anonKey: '' };
+function doWL() {
+  var name  = document.getElementById('wlName').value.trim();
+  var email = document.getElementById('wlEmail').value.trim();
+  if (!name || !email) { alert('Please fill in both fields.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
+  var btn = document.getElementById('wlBtn');
+  btn.disabled = true;
+  btn.textContent = 'Joining...';
+  if (!WAITLIST.url || !WAITLIST.anonKey) {
+    btn.disabled = false;
+    btn.textContent = '✶ Join the Waitlist — It’s Free';
+    alert('The waitlist is not connected yet. Set WAITLIST.url and WAITLIST.anonKey in index.html.');
+    return;
+  }
+  fetch(WAITLIST.url + '/rest/v1/waitlist', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': WAITLIST.anonKey,
+      'Authorization': 'Bearer ' + WAITLIST.anonKey,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ name: name, email: email })
+  }).then(function(res) {
+    if (res.ok || res.status === 201) {
+      document.getElementById('formWrap').style.display = 'none';
+      document.getElementById('wlOk').style.display = 'block';
+    } else {
+      return res.json().catch(function() { return {}; }).then(function(err) {
+        if (res.status === 409 || (err && err.code === '23505')) {
+          document.getElementById('formWrap').style.display = 'none';
+          document.getElementById('wlOk').style.display = 'block';
+        } else {
+          btn.disabled = false;
+          btn.textContent = '✶ Join the Waitlist — It’s Free';
+          alert('Something went wrong. Please try again.');
+        }
+      });
+    }
+  }).catch(function() {
+    btn.disabled = false;
+    btn.textContent = '✶ Join the Waitlist — It’s Free';
+    alert('Network error. Please check your connection and try again.');
+  });
+}
+document.querySelectorAll('#wlName, #wlEmail').forEach(function(inp) {
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') doWL(); });
+});
+
+// ── PARALLAX ─────────────────────────────────────────────────
+window.addEventListener('scroll', function() {
+  var g = document.querySelector('.hero-glow');
+  if (g) g.style.transform = 'translate(-50%, calc(-50% + ' + (window.scrollY * 0.18) + 'px))';
+});
+
+// ── LANGUAGE TOGGLE ──────────────────────────────────────────
+var lang = 'en';
+var T = {
+  en: {
+    btn: 'ΕΛ',
+    links: ['Problem','Solution','Features','FAQ','Contact'],
+    cta: 'Join Waitlist →',
+    badge: 'Powered by Automatesphere AI',
+    h1: 'Your LinkedIn is costing you <span class="grad">opportunities</span>',
+    sub: 'LinkSense AI analyzes your entire profile with AI, gives you a real score, and tells you exactly what to fix to attract recruiters, clients, and partners.',
+    b1: 'Join the Waitlist',
+    b2: 'See How It Works ↓',
+    wh2: 'Be the first to <span class="grad">optimize your LinkedIn</span>',
+    wbtn: '✶ Join the Waitlist — It’s Free'
+  },
+  gr: {
+    btn: 'EN',
+    links: ['Πρόβλημα','Λύση','Χαρακτηριστικά','Ερωτήσεις','Επικοινωνία'],
+    cta: 'Εγγραφή →',
+    badge: 'Powered by Automatesphere AI',
+    h1: 'Το LinkedIn σου σε κοστίζει <span class="grad">ευκαιρίες</span>',
+    sub: 'Το LinkSense AI αναλύει ολόκληρο το προφίλ σου με AI, σου δίνει πραγματικό σκορ και σου λέει ακριβώς τι να διορθώσεις.',
+    b1: 'Εγγραφή στη Λίστα',
+    b2: 'Δες Πώς Λειτουργεί ↓',
+    wh2: 'Γίνε ο πρώτος που θα <span class="grad">βελτιστοποιήσει το LinkedIn του</span>',
+    wbtn: '✶ Εγγραφή στη Λίστα — Δωρεάν'
+  }
+};
+
+function switchLang() {
+  lang = lang === 'en' ? 'gr' : 'en';
+  var t = T[lang];
+  document.getElementById('langBtn').textContent = t.btn;
+  document.querySelectorAll('#nav .nav-links a').forEach(function(a, i) {
+    if (t.links[i]) a.textContent = t.links[i];
+  });
+  document.getElementById('navCta').textContent = t.cta;
+  var mobAs = document.querySelectorAll('#mob-menu a');
+  mobAs.forEach(function(a, i) {
+    if (i < 5 && t.links[i]) a.textContent = t.links[i];
+    else if (i === 5) a.textContent = t.cta;
+  });
+  var badge = document.getElementById('heroBadge');
+  if (badge) {
+    var dot = badge.querySelector('.badge-dot');
+    badge.innerHTML = '';
+    if (dot) badge.appendChild(dot);
+    badge.appendChild(document.createTextNode(' ' + t.badge));
+  }
+  document.getElementById('heroH1').innerHTML = t.h1;
+  document.getElementById('heroSub').textContent = t.sub;
+  document.getElementById('heroCta1').textContent = t.b1;
+  document.getElementById('heroCta2').textContent = t.b2;
+  var wh2 = document.querySelector('#waitlist h2');
+  if (wh2) wh2.innerHTML = t.wh2;
+  var wb = document.getElementById('wlBtn');
+  if (wb && !wb.disabled) wb.textContent = t.wbtn;
+  document.documentElement.lang = lang === 'gr' ? 'el' : 'en';
+}
+</script>
+</body>
+</html>
